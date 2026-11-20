@@ -1,5 +1,5 @@
 import { Bar } from 'react-chartjs-2';
-import '../charts.js';
+import { SKY } from '../charts.js';
 import { LOW_STOCK_THRESHOLD } from '../api.js';
 import { useProducts } from '../useProducts.js';
 
@@ -13,9 +13,11 @@ export default function HomePage() {
       {
         label: 'On Hand Count',
         data: low.map((p) => p.instock),
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        borderColor: 'rgba(75, 192, 192, 1)',
+        backgroundColor: SKY.bright,
+        hoverBackgroundColor: SKY.accent,
+        borderColor: SKY.deep,
         borderWidth: 1,
+        borderRadius: 8,
       },
     ],
   };

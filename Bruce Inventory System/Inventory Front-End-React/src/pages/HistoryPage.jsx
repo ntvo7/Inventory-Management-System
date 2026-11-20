@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Line } from 'react-chartjs-2';
-import '../charts.js';
+import { SKY } from '../charts.js';
 import * as api from '../api.js';
 
 export default function HistoryPage() {
@@ -49,9 +49,12 @@ export default function HistoryPage() {
       {
         label: `Stock changes for ${productName} (ID ${productId})`,
         data: filtered.map((c) => c.newstock),
-        borderColor: 'rgba(75, 192, 192, 1)',
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        borderColor: SKY.accent,
+        backgroundColor: 'rgba(152, 213, 238, 0.35)',
+        pointBackgroundColor: SKY.deep,
+        pointRadius: 4,
         borderWidth: 2,
+        cubicInterpolationMode: 'monotone', // smooth, but never curves past the real values
         fill: true,
       },
     ],
