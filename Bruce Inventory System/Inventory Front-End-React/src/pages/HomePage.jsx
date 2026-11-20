@@ -76,17 +76,20 @@ export default function HomePage() {
     scales: { x: { ticks: { color: c.text, maxTicksLimit: 10 }, grid: { display: false }, border: { display: false } } },
   });
 
-  // ---- bar: stock levels vs minimum ----
-  const sorted = [...products].sort((a, b) => a.on_hand - b.on_hand);
+  // ---- bar: stock levels vs minimum (the products closest to running out) ----
+  const SHOW = 12;
+  const sorted = [...products]
+    .sort((a, b) => a.on_hand / (a.min_stock || 1) - b.on_hand / (b.min_stock || 1))
+    .slice(0, SHOW);
   const barData = {
     labels: sorted.map((p) => p.s_name),
     datasets: [
       {
-        label: 'On hand', data: sorted.map((p) => p.on_hand), borderRadius: 8, maxBarThickness: 34,
+        label: 'On hand', data: sorted.map((p) => p.on_hand), borderRadius: 6, maxBarThickness: 16,
         backgroundColor: sorted.map((p) => statusColor[p.status]),
       },
       {
-        label: 'Minimum', data: sorted.map((p) => p.min_stock), borderRadius: 8, maxBarThickness: 34,
+        label: 'Minimum', data: sorted.map((p) => p.min_stock), borderRadius: 6, maxBarThickness: 16,
         backgroundColor: c.barSoft,
       },
     ],
@@ -141,7 +144,7 @@ export default function HomePage() {
           <section className="card" aria-label="Low stock alerts">
             <div className="card-head">
               <h3><i className="fas fa-bell" style={{ color: 'var(--warn)', marginRight: 8 }}></i>Low stock alerts</h3>
-              <span className="meta">{alerts.length} of {products.length}</span>
+              <span className="meta">{alerts.length} of {products.length} products</span>
             </div>
             {alerts.length === 0 ? (
               <p className="muted">Everything is above its minimum level.</p>
@@ -162,6 +165,7 @@ export default function HomePage() {
                 ))}
               </div>
             )}
+            {alerts.length > 7 && <p className="muted" style={{ fontSize: 13, marginTop: 10 }}>+ {alerts.length - 7} more in Operation (Low stock tab)</p>}
             {ft.reorder_count > 0 && (
               <Link to="/suppliers?tab=reorder" className="btn btn-secondary btn-sm" style={{ marginTop: 14 }}>
                 <i className="fas fa-cart-flatbed"></i> {ft.reorder_count} reorder suggestions
@@ -226,13 +230,24 @@ export default function HomePage() {
             <div className="card-head">
               <h3>Stock levels</h3>
               <span className="meta">
-                bar color = status · light bar = minimum ·{' '}
+                {Math.min(SHOW, products.length)} lowest of {products.length}, compared with their minimum ·{' '}
                 <span style={{ color: c.good }}>■</span> healthy <span style={{ color: c.warn }}>■</span> low <span style={{ color: c.bad }}>■</span> out
               </span>
             </div>
-            <div className="chart">
-              <Bar data={barData} options={baseOptions(c, { plugins: { legend: { display: false } }, scales: { x: { ticks: { color: c.text, autoSkip: false, maxRotation: 45 }, grid: { display: false }, border: { display: false } } } })} />
+            <div className="chart" style={{ height: Math.max(220, sorted.length * 34) }}>
+              <Bar data={barData} options={{
+                ...baseOptions(c, {
+                  plugins: { legend: { display: false } },
+                  scales: {
+                    x: { beginAtZero: true, ticks: { color: c.text, precision: 0 }, grid: { color: c.grid }, border: { display: false } },
+                    y: { ticks: { color: c.text, autoSkip: false }, grid: { display: false }, border: { display: false } },
+                  },
+                }),
+                indexAxis: 'y',
+                interaction: { mode: 'index', intersect: false, axis: 'y' },
+              }} />
             </div>
+            <Link to="/operation" className="btn btn-ghost btn-sm" style={{ marginTop: 8 }}>See all {products.length} products in Operation</Link>
           </section>
         </div>
       </div>

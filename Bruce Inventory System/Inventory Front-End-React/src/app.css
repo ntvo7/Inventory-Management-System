@@ -316,6 +316,11 @@ tbody tr:hover { background: var(--surface-2); }
 tbody tr.clickable { cursor: pointer; }
 th.right, td.right { text-align: right; }
 td.wrap { white-space: normal; min-width: 180px; }
+/* keep the actions column visible when a wide table scrolls sideways */
+th.sticky-col, td.sticky-col { position: sticky; right: 0; z-index: 2; }
+td.sticky-col { background: var(--surface); box-shadow: -8px 0 12px -10px rgba(4, 32, 46, 0.35); }
+tbody tr:hover td.sticky-col { background: var(--surface-2); }
+th.sticky-col { z-index: 3; }
 td.empty { text-align: center; color: var(--text-muted); padding: 28px; }
 tfoot td { font-weight: 800; background: var(--surface-2); }
 

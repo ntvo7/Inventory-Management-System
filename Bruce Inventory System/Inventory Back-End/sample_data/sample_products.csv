@@ -1,0 +1,53 @@
+sku,name,category,unit,price,unit_cost,opening_qty,min_stock,supplier
+BEV-1001,Coca-Cola Zero Sugar 20 oz,Beverage,bottle,2.49,1.21,36,12,Metro Beverage Distributors
+BEV-1002,Sprite 20 oz,Beverage,bottle,2.49,1.21,30,12,Metro Beverage Distributors
+BEV-1003,Dr Pepper 20 oz,Beverage,bottle,2.49,1.23,32,12,Metro Beverage Distributors
+BEV-1004,Mountain Dew 20 oz,Beverage,bottle,2.49,1.20,24,12,Metro Beverage Distributors
+BEV-1005,Gatorade Cool Blue 28 oz,Beverage,bottle,2.79,1.45,20,10,Metro Beverage Distributors
+BEV-1006,Red Bull 8.4 oz,Beverage,can,3.49,2.05,48,18,Metro Beverage Distributors
+BEV-1007,Monster Energy 16 oz,Beverage,can,3.29,1.82,40,16,Metro Beverage Distributors
+BEV-1008,Celsius Sparkling Orange 12 oz,Beverage,can,2.99,1.68,18,10,Metro Beverage Distributors
+BEV-1009,Ozarka Spring Water 16.9 oz,Beverage,bottle,1.29,0.38,60,24,Metro Beverage Distributors
+BEV-1010,Smartwater 1 L,Beverage,bottle,2.79,1.32,15,8,Metro Beverage Distributors
+BEV-1011,Starbucks Frappuccino Mocha 13.7 oz,Beverage,bottle,3.99,2.31,12,8,Metro Beverage Distributors
+BEV-1012,AriZona Green Tea 23 oz,Beverage,can,1.29,0.62,30,12,Metro Beverage Distributors
+BEV-1013,Topo Chico Mineral Water 12 oz,Beverage,bottle,1.99,0.97,24,12,Metro Beverage Distributors
+BEV-1014,Minute Maid Orange Juice 12 oz,Beverage,bottle,2.29,1.18,6,8,Metro Beverage Distributors
+SNK-2001,Lay's Classic 2.625 oz,Snack,bag,2.29,1.12,24,10,Sunrise Snack Wholesale
+SNK-2002,Takis Fuego 4 oz,Snack,bag,2.99,1.55,20,10,Sunrise Snack Wholesale
+SNK-2003,Cheez-It Original 3 oz,Snack,bag,2.19,1.06,15,8,Sunrise Snack Wholesale
+SNK-2004,Snickers 1.86 oz,Snack,each,1.99,0.92,48,18,Sunrise Snack Wholesale
+SNK-2005,Reese's Peanut Butter Cups 1.5 oz,Snack,each,1.99,0.94,42,18,Sunrise Snack Wholesale
+SNK-2006,M&M's Peanut 1.74 oz,Snack,each,1.99,0.93,36,18,Sunrise Snack Wholesale
+SNK-2007,Kit Kat 1.5 oz,Snack,each,1.99,0.91,30,12,Sunrise Snack Wholesale
+SNK-2008,Pringles Original 2.5 oz,Snack,can,2.49,1.31,16,8,Sunrise Snack Wholesale
+SNK-2009,Slim Jim Original 0.97 oz,Snack,each,1.79,0.84,40,15,Sunrise Snack Wholesale
+SNK-2010,Planters Salted Peanuts 1.75 oz,Snack,bag,1.49,0.66,24,10,Sunrise Snack Wholesale
+SNK-2011,Nature Valley Oats 'n Honey Bar 2 ct,Snack,pack,1.49,0.71,24,10,Sunrise Snack Wholesale
+SNK-2012,Clif Bar Chocolate Chip 2.4 oz,Snack,each,2.29,1.29,12,6,Sunrise Snack Wholesale
+SNK-2013,Hostess Twinkies 2 ct,Snack,pack,2.49,1.17,18,8,Sunrise Snack Wholesale
+SNK-2014,Little Debbie Honey Bun,Snack,each,1.29,0.58,20,10,Sunrise Snack Wholesale
+SNK-2015,Funyuns Onion Rings 2.125 oz,Snack,bag,2.29,1.10,4,8,Sunrise Snack Wholesale
+ALC-3001,Bud Light 12 pk 12 oz cans,Alcohol,case,15.99,11.20,10,4,Bayou Spirits & Beer
+ALC-3002,Modelo Especial 6 pk 12 oz bottles,Alcohol,pack,10.99,7.45,12,5,Bayou Spirits & Beer
+ALC-3003,Michelob Ultra 6 pk 12 oz cans,Alcohol,pack,10.49,7.10,10,5,Bayou Spirits & Beer
+ALC-3004,Coors Light 24 oz can,Alcohol,can,2.79,1.62,24,10,Bayou Spirits & Beer
+ALC-3005,White Claw Variety 12 pk,Alcohol,case,19.99,14.30,6,3,Bayou Spirits & Beer
+ALC-3006,Corona Extra 6 pk 12 oz bottles,Alcohol,pack,11.49,7.85,8,4,Bayou Spirits & Beer
+ALC-3007,Shiner Bock 6 pk 12 oz bottles,Alcohol,pack,10.49,7.05,0,4,Bayou Spirits & Beer
+CIG-4001,Marlboro Red King,Cigarette,pack,8.99,7.40,40,20,Gulf Coast Tobacco Supply
+CIG-4002,Marlboro Gold King,Cigarette,pack,8.99,7.40,40,20,Gulf Coast Tobacco Supply
+CIG-4003,Newport Menthol King,Cigarette,pack,9.49,7.85,30,15,Gulf Coast Tobacco Supply
+CIG-4004,Camel Blue King,Cigarette,pack,8.79,7.20,20,10,Gulf Coast Tobacco Supply
+CIG-4005,Swisher Sweets Cigarillos 2 ct,Cigarette,pack,1.49,0.88,30,12,Gulf Coast Tobacco Supply
+CIG-4006,Marlboro Red King Carton,Cigarette,carton,84.99,72.50,4,2,Gulf Coast Tobacco Supply
+OTH-5001,Advil Ibuprofen 2 ct packet,Other,pack,1.99,0.85,20,8,City General Merchandise
+OTH-5002,Tylenol Extra Strength 24 ct,Other,box,8.49,5.10,6,3,City General Merchandise
+OTH-5003,Duracell AA Batteries 4 pk,Other,pack,7.99,4.60,10,4,City General Merchandise
+OTH-5004,BIC Classic Lighter,Other,each,2.29,0.95,30,12,City General Merchandise
+OTH-5005,Trojan ENZ Condoms 3 ct,Other,box,5.99,3.30,8,4,City General Merchandise
+OTH-5006,Charmin Ultra Soft Toilet Paper 4 roll,Other,pack,6.49,4.05,6,3,City General Merchandise
+OTH-5007,Kleenex On-the-Go Tissues 3 pk,Other,pack,2.49,1.20,12,5,City General Merchandise
+OTH-5008,ChapStick Classic Original,Other,each,2.29,1.05,15,6,City General Merchandise
+OTH-5009,USB-C Charging Cable 3 ft,Other,each,9.99,3.50,8,3,City General Merchandise
+OTH-5010,Bagged Ice 10 lb,Other,bag,2.99,1.10,25,10,City General Merchandise
