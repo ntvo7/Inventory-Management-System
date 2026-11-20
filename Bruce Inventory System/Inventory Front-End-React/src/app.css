@@ -81,6 +81,7 @@ table { width: 100%; border-collapse: collapse; }
 th, td { padding: 10px; text-align: left; }
 th { background-color: #f2f2f2; position: sticky; top: 0; }
 td:last-child, th:last-child { text-align: right; }
+td[colspan] { text-align: center !important; color: #666; }
 tbody tr:hover { background-color: #f5f5f5; cursor: pointer; }
 .status { text-align: center; color: #666; padding: 20px; }
 .status.error { color: #d9534f; font-weight: bold; }
@@ -152,4 +153,103 @@ footer { text-align: center; color: #6c757d; margin-top: 30px; }
 @media (max-width: 700px) {
   .layout { flex-direction: column; }
   .sidebar { width: 100%; min-height: auto; }
+}
+
+/* sidebar log off is a button that looks like the links */
+.sidebar button.link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  padding: 12px 15px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 16px;
+  font-weight: bold;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.3s, transform 0.2s;
+}
+.sidebar button.link:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
+
+/* login page (same look as views/pages/index.ejs) */
+.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #74ebd5, #acb6e5);
+  padding: 16px;
+  box-sizing: border-box;
+}
+.login-card {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  animation: fadeIn 0.6s ease-in-out;
+  box-sizing: border-box;
+}
+.login-card h1 { color: #333; margin-bottom: 0.5rem; font-size: 2.5rem; font-family: 'Trebuchet MS', sans-serif; }
+.welcome-message { color: #555; font-size: 1.2rem; margin-bottom: 1.5rem; font-family: 'Trebuchet MS', sans-serif; }
+.login-group { margin-bottom: 1.5rem; text-align: left; }
+.login-group label { font-weight: bold; color: #333; }
+.login-input-wrap { position: relative; margin-top: 0.5rem; }
+.login-input-wrap i { position: absolute; top: 50%; left: 12px; transform: translateY(-50%); color: #28a745; }
+.login-input {
+  width: 100%;
+  padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  font-size: 1rem;
+}
+.login-input:focus { border-color: #28a745; box-shadow: 0 0 10px rgba(40, 167, 69, 0.3); outline: none; }
+.login-button {
+  background: linear-gradient(90deg, #28a745, #85d992);
+  color: #fff;
+  border: none;
+  padding: 0.75rem;
+  width: 100%;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+  transition: transform 0.2s, box-shadow 0.3s;
+}
+.login-button:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(40, 167, 69, 0.4); }
+.login-button:disabled { opacity: 0.7; cursor: wait; }
+.alert { margin-bottom: 1rem; padding: 1rem; border-radius: 10px; font-weight: bold; }
+.alert-danger { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+.alert-warning { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+.footer-text { margin-top: 2rem; font-size: 0.85rem; color: #666; }
+@keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+/* home page */
+.attention { text-align: center; color: #d9534f; font-weight: bold; font-size: 18px; }
+.attention i { margin-right: 8px; }
+.chart-box { position: relative; height: 60vh; min-height: 300px; }
+.history-chart { position: relative; height: 360px; margin-top: 30px; }
+.hint { text-align: center; color: #666; margin-top: 20px; }
+
+/* reports page */
+.btn-print { background: linear-gradient(90deg, #f39c12, #f7c873); box-shadow: 0 4px 10px rgba(243, 156, 18, 0.3); }
+h3 { margin-top: 24px; }
+.report-table tbody tr:hover { cursor: default; }
+
+/* history page */
+.form-date { width: 150px; }
+
+@media print {
+  .sidebar, .print-hide, footer { display: none !important; }
+  .content { padding: 0; }
+  .table-wrap { max-height: none; overflow: visible; }
 }

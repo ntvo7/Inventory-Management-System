@@ -6,6 +6,8 @@ const config = require('./config');
 
 // required module to make calls to a REST API
 const axios = require('axios');
+// The Flask API requires a login; this server signs in with Basic Auth on every call
+axios.defaults.auth = { username: config.adminUser, password: config.adminPassword };
 
 app.use(express.urlencoded({ extended: false }));
 

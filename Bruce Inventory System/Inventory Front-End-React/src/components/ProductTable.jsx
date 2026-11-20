@@ -1,15 +1,16 @@
 import { formatPrice } from '../api.js';
 
-export default function ProductTable({ products, onSelect }) {
+// onSelect is optional: Dashboard rows open the edit modal, Reports rows are read-only
+export default function ProductTable({ products, onSelect, quantityLabel = 'Quantity' }) {
   return (
     <div className="table-wrap">
-      <table>
+      <table className={onSelect ? '' : 'report-table'}>
         <thead>
           <tr>
             <th>Product</th>
             <th>Price</th>
             <th>Category</th>
-            <th>Quantity</th>
+            <th>{quantityLabel}</th>
           </tr>
         </thead>
         <tbody>
@@ -19,7 +20,7 @@ export default function ProductTable({ products, onSelect }) {
             </tr>
           ) : (
             products.map((p) => (
-              <tr key={p.s_id} onClick={() => onSelect(p)}>
+              <tr key={p.s_id} onClick={onSelect ? () => onSelect(p) : undefined}>
                 <td>{p.s_name}</td>
                 <td>{formatPrice(p.s_price)}</td>
                 <td>{p.s_category}</td>

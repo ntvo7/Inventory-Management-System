@@ -1,30 +1,42 @@
-# React prototype: Dashboard page
+# Bruce Inventory System: React front end
 
-A React version of the **Dashboard** page, built to compare against the current EJS site before deciding on a framework.
-It reads and writes the same MySQL data through the same Flask backend. Nothing in the backend was changed.
+The React version of the site. It replaces the old EJS site in `Inventory Front-End/` and talks to the same
+Flask backend (`Inventory Back-End/Back-End.py`) and MySQL database.
 
 ## Run it
 
-1. Start the current app as usual (`run_app.command` on Mac, `run_app.bat` on Windows). This prototype needs the Flask backend on port 5000.
-2. In this folder:
+Easiest: double-click `run_app.command` (Mac) or `run_app.bat` (Windows) in the `Bruce Inventory System` folder.
+It starts MySQL (Mac), Flask on port 5000 and this app on port 5173, then opens http://127.0.0.1:5173.
 
-   ```bash
-   npm install   # first time only
-   npm run dev
-   ```
+By hand:
 
-3. Open http://localhost:5173
+```bash
+cd "Inventory Back-End" && python3 Back-End.py     # terminal 1
+cd "Inventory Front-End-React" && npm install && npm run dev   # terminal 2
+```
 
-## What's in it
+Log in with `admin` / `brucestore`.
 
-- Product table, name and category filters that update as you type (no page reload)
-- Add / Update / Delete through one shared modal
-- Home, Reports, History and Log off in the sidebar still link to the old site on port 9000
+## Pages
 
-Not included yet: login (the prototype skips it), and the other pages.
+| Page | URL | What it does |
+|---|---|---|
+| Login | `/login` | Logs in through Flask (`/api/login`), which sets a session cookie |
+| Home | `/` | Bar chart of products with fewer than 10 on hand |
+| Dashboard | `/dashboard` | Product table, live filters, add / update / delete |
+| Reports | `/reports` | Low stock (1 to 9) and out of stock (0) tables, filters, print |
+| History | `/history` | Stock changes by product and date range; pick a product to see its trend chart |
 
 ## Where the code is
 
-- `src/App.jsx, components/*.jsx`: the page, split into Sidebar, FilterBar, ProductTable and ProductModal components
-- `src/api.js`: calls to Flask (`/api/stock`), shared filter logic
-- `vite.config.js`: forwards `/api` to Flask on port 5000, so Flask needs no CORS changes
+- `src/App.jsx`: page routes; pages other than Login require a logged-in user
+- `src/auth.jsx`: login state (asks Flask `/api/me` on load)
+- `src/api.js`: every call to Flask, plus shared filter and date helpers
+- `src/pages/`: one file per page
+- `src/components/`: Sidebar, FilterBar, ProductTable, ProductModal
+- `vite.config.js`: forwards `/api` to Flask on port 5000, so the login cookie works without CORS
+
+## Login and the API
+
+Every `/api/stock*` and `/api/*_change` route in Flask needs either the session cookie (this app) or HTTP Basic Auth
+(the old Express site sends it from `config.js`). Without either, Flask answers 401 and this app sends you to the login page.

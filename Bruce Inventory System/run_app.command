@@ -20,11 +20,11 @@ if ! nc -z 127.0.0.1 3306 2>/dev/null; then
     nc -z 127.0.0.1 3306 2>/dev/null || fail "MySQL is not running on port 3306. Start it and try again."
 fi
 
-# Set up the Node.js environment
+# Set up the React front end
 echo "Checking for Node.js dependencies..."
-if [ ! -d "Inventory Front-End/node_modules" ]; then
+if [ ! -d "Inventory Front-End-React/node_modules" ]; then
     echo "Installing Node.js dependencies..."
-    (cd "Inventory Front-End" && npm install) || fail "npm install failed."
+    (cd "Inventory Front-End-React" && npm install) || fail "npm install failed."
 fi
 
 # Set up the Python virtual environment
@@ -53,16 +53,16 @@ echo "Starting Python backend..."
 (cd "Inventory Back-End" && exec python Back-End.py) &
 BACKEND_PID=$!
 
-# Run the Node.js server
-echo "Starting Node.js server..."
-(cd "Inventory Front-End" && exec node server.js) &
+# Run the React front end (Vite dev server)
+echo "Starting React front end..."
+(cd "Inventory Front-End-React" && exec node node_modules/vite/bin/vite.js) &
 FRONTEND_PID=$!
 
 # Wait for the site to come up, then open it in the browser
-for _ in $(seq 1 20); do nc -z 127.0.0.1 9000 2>/dev/null && break; sleep 1; done
-open "http://127.0.0.1:9000"
+for _ in $(seq 1 20); do nc -z 127.0.0.1 5173 2>/dev/null && break; sleep 1; done
+open "http://127.0.0.1:5173"
 
 echo
-echo "Both servers are now running at http://127.0.0.1:9000"
+echo "Both servers are now running at http://127.0.0.1:5173"
 echo "Press Ctrl+C or close this window to stop them."
 wait

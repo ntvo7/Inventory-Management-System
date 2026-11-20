@@ -1,22 +1,34 @@
-import { OLD_SITE } from '../api.js';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth.jsx';
 
 const LINKS = [
-  { key: 'home', label: 'Home', icon: 'fa-home', href: `${OLD_SITE}/main` },
-  { key: 'dashboard', label: 'Dashboard', icon: 'fa-tachometer-alt', href: '/' },
-  { key: 'reports', label: 'Reports', icon: 'fa-chart-bar', href: `${OLD_SITE}/reports` },
-  { key: 'history', label: 'History', icon: 'fa-history', href: `${OLD_SITE}/filter_stockchange` },
-  { key: 'logout', label: 'Log off', icon: 'fa-sign-out-alt', href: `${OLD_SITE}/logout` },
+  { to: '/', label: 'Home', icon: 'fa-home' },
+  { to: '/dashboard', label: 'Dashboard', icon: 'fa-tachometer-alt' },
+  { to: '/reports', label: 'Reports', icon: 'fa-chart-bar' },
+  { to: '/history', label: 'History', icon: 'fa-history' },
 ];
 
-export default function Sidebar({ active }) {
+export default function Sidebar() {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  async function handleLogout() {
+    await logout();
+    navigate('/login');
+  }
+
   return (
     <nav className="sidebar">
       <div className="sidebar-title">Navigation</div>
       {LINKS.map((link) => (
-        <a key={link.key} href={link.href} className={link.key === active ? 'active' : ''}>
+        // NavLink adds the "active" class to the current page's link
+        <NavLink key={link.to} to={link.to} end>
           <i className={`fas ${link.icon}`}></i> {link.label}
-        </a>
+        </NavLink>
       ))}
+      <button type="button" className="link" onClick={handleLogout}>
+        <i className="fas fa-sign-out-alt"></i> Log off
+      </button>
     </nav>
   );
 }

@@ -2,7 +2,11 @@
 
 import flask
 from flask import jsonify
-from flask import request, make_response
+from flask import request, make_response, session
+from functools import wraps
+import hmac
+import os
+import secrets
 
 import mysql.connector
 from mysql.connector import Error
@@ -12,6 +16,10 @@ from datetime import datetime
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
+# Signs the login session cookie. Set SECRET_KEY to keep people logged in across restarts.
+app.secret_key = os.environ.get('SECRET_KEY') or secrets.token_hex(32)
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
 #connect to database (based on classwork)
 def create_con(hostname,uname,passwd,dname):
@@ -76,18 +84,59 @@ def handle_bad_request(e):
 masterUsername = 'admin'
 masterPassword = '5393a423c38ab58e5bddd35c160deabcdd11f7242fa37250dfa49c9e7313cda4' #hash SHA256 value of 'brucestore' as the password
 
+#check a username/password against the master login
+def valid_login(username, password):
+    if not username or not password:
+        return False
+    hashvalue = hashlib.sha256(password.encode()).hexdigest() #hash the password, compare to stored hash
+    return username == masterUsername and hmac.compare_digest(hashvalue, masterPassword)
+
 #Basic Authentication which uses username and password of request
 @app.route('/auth', methods=['GET'])
 def processrequest():
-    if request.authorization:
-        encodedpassword = request.authorization.password.encode() #getting password in unicode value
-        hashvalue = hashlib.sha256(encodedpassword)
-        if request.authorization.username == masterUsername and hashvalue.hexdigest() == masterPassword:
-            return '<h1> Authenticated User'
+    if request.authorization and valid_login(request.authorization.username, request.authorization.password):
+        return '<h1> Authenticated User'
     return make_response('could not find user', 401, {'WWW-Authenticate': 'Basic realm="login required"'})
+
+#API routes need a logged-in session (React site) or Basic Auth (Express site)
+def login_required(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if session.get('user') == masterUsername:
+            return f(*args, **kwargs)
+        auth = request.authorization
+        if auth and valid_login(auth.username, auth.password):
+            return f(*args, **kwargs)
+        # no WWW-Authenticate header, so browsers don't pop up a login box
+        return jsonify({'error': 'login required'}), 401
+    return wrapper
+
+#API login: checks the password and starts a session cookie
+@app.route('/api/login', methods=['POST'])
+def api_login():
+    request_data = request.get_json(silent=True) or {}
+    if valid_login(request_data.get('username'), request_data.get('password')):
+        session.clear()
+        session['user'] = masterUsername
+        return jsonify({'user': masterUsername})
+    return jsonify({'error': 'Incorrect username or password'}), 401
+
+#API logout: ends the session
+@app.route('/api/logout', methods=['POST'])
+def api_logout():
+    session.clear()
+    return jsonify({'ok': True})
+
+#API: who is logged in (used by React when the page loads)
+@app.route('/api/me', methods=['GET'])
+def api_me():
+    if session.get('user') == masterUsername:
+        return jsonify({'user': masterUsername})
+    return jsonify({'error': 'login required'}), 401
 
 #API POST fuction to add products into database
 @app.route('/api/stock', methods=['POST'])
+@login_required
 def add_product():
     request_data = request.get_json()
     newsname = request_data['s_name']
@@ -102,6 +151,7 @@ def add_product():
 
 #API DELETE function to delete product by id
 @app.route('/api/stock', methods=['DELETE'])
+@login_required
 def delete_product_byid():
     request_data = request.get_json()
     protodelete = int(request_data['s_id'])
@@ -113,6 +163,7 @@ def delete_product_byid():
 
 #API GET to retrieve all products
 @app.route('/api/stock', methods=['GET'])
+@login_required
 def all_stock():
     #creating dictionary list of all current products
     sql = "select * from stock"
@@ -126,6 +177,7 @@ def all_stock():
 
 #PUT funtion that updates product on hand
 @app.route('/api/stock', methods=['PUT'])
+@login_required
 def api_put_product_byname():
     request_data = request.get_json()
     sid = int(request_data['s_id'])
@@ -156,6 +208,7 @@ def api_put_product_byname():
 
 #API GET to retrieve all stock change history
 @app.route('/api/stock_change', methods=['GET'])
+@login_required
 def all_stock_change():
     #creating dictionary list of all stock change history
     sql = "select * from stock_change order by up_date, up_id"
@@ -169,6 +222,7 @@ def all_stock_change():
 
 #API GET to retrieve all price change history
 @app.route('/api/price_change', methods=['GET'])
+@login_required
 def all_price_change():
     #creating dictionary list of all price change history
     sql = "select * from price_change order by up_date, p_id"

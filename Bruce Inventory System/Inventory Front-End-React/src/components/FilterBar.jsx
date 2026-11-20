@@ -1,8 +1,9 @@
 import { CATEGORIES } from '../api.js';
 
+// Name + category filter used by Dashboard and Reports. Filters apply as you type.
 export default function FilterBar({ name, category, onNameChange, onCategoryChange, count, total }) {
   return (
-    <div className="filter-section">
+    <div className="filter-section print-hide">
       <div className="filter-form">
         <label htmlFor="nfilter" className="form-label">Filter by Product Name:</label>
         <input
@@ -24,9 +25,11 @@ export default function FilterBar({ name, category, onNameChange, onCategoryChan
             <option key={c} value={c}>{c}</option>
           ))}
         </select>
-        <span className="result-count">
-          Showing {count} of {total}
-        </span>
+        {count !== undefined && (
+          <span className="result-count">
+            Showing {count} of {total}
+          </span>
+        )}
       </div>
     </div>
   );
