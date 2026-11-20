@@ -144,19 +144,19 @@ export default function OperationPage() {
                   {visible.length === 0 && <tr><td colSpan={9} className="empty">No products match these filters.</td></tr>}
                   {visible.map((p) => (
                     <tr key={p.s_id}>
-                      <td className="wrap" style={{ minWidth: 190 }}>
+                      <td className="wrap" style={{ minWidth: 170 }}>
                         <b>{p.s_name}</b>
                         {p.sku && <div className="muted" style={{ fontSize: 12 }}>SKU {p.sku}</div>}
                       </td>
                       <td>{p.s_category}</td>
-                      <td className="muted wrap" style={{ minWidth: 150 }}>{p.supplier_name || '—'}</td>
+                      <td className="muted wrap" style={{ minWidth: 130 }}>{p.supplier_name || '—'}</td>
                       <td className="right num">{money(p.s_price)}</td>
                       <td className="right num"><b>{p.instock}</b> <span className="muted">{p.unit}</span></td>
                       <td className="right num muted">{p.min_stock}</td>
                       <td><StatusPill status={p.status} /></td>
                       <td className="right num">{money(value(p))}</td>
                       <td className="right sticky-col">
-                        <div className="row-actions">
+                        <div className="row-actions" style={{ gap: 4 }}>
                           <button className="icon-btn" title="Receive stock" aria-label={`Receive ${p.s_name}`} onClick={() => setModal({ kind: 'receive', product: p })}><i className="fas fa-truck-ramp-box"></i></button>
                           <button className="icon-btn" title="Record a sale" aria-label={`Sell ${p.s_name}`} onClick={() => setModal({ kind: 'sell', product: p })} disabled={p.instock <= 0}><i className="fas fa-cash-register"></i></button>
                           <button className="icon-btn" title="Adjust count" aria-label={`Adjust ${p.s_name}`} onClick={() => setModal({ kind: 'adjust', product: p })}><i className="fas fa-scale-balanced"></i></button>

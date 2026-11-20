@@ -43,7 +43,7 @@ export default function HomePage() {
     datasets: [{
       data: statusOrder.map((s) => groups[s].length),
       backgroundColor: statusOrder.map((s) => statusColor[s]),
-      borderColor: c.dark ? '#072a3b' : '#ffffff', borderWidth: 4, hoverOffset: 6, borderRadius: 6,
+      borderColor: c.surface, borderWidth: 4, hoverOffset: 6, borderRadius: 6,
     }],
   };
   const donutOptions = { ...baseOptions(c, { scales: null }), cutout: '68%', plugins: { ...baseOptions(c).plugins, legend: { display: false } } };
@@ -99,8 +99,8 @@ export default function HomePage() {
   const spark = {
     labels: hist.map((d) => shortDate(d.date)),
     datasets: [{
-      data: hist.map((d) => d.revenue), borderColor: '#98d5ee', borderWidth: 2, pointRadius: 0,
-      fill: true, backgroundColor: 'rgba(152, 213, 238, 0.18)', cubicInterpolationMode: 'monotone',
+      data: hist.map((d) => d.revenue), borderColor: 'rgba(255, 255, 255, 0.92)', borderWidth: 2, pointRadius: 0,
+      fill: true, backgroundColor: 'rgba(255, 255, 255, 0.14)', cubicInterpolationMode: 'monotone',
     }],
   };
   const sparkOptions = {

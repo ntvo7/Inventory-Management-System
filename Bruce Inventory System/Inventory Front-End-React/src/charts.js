@@ -11,25 +11,27 @@ ChartJS.defaults.font.family = "'Inter', Arial, sans-serif";
 export function useChartColors() {
   const { theme } = useTheme();
   const dark = theme === 'dark';
+  // "Atlas / Desk": cobalt in light mode, light blue on near-black in dark mode
   return {
     dark,
-    text: dark ? '#9cc6d9' : '#3f6577',
-    grid: dark ? 'rgba(79, 179, 218, 0.12)' : 'rgba(15, 94, 131, 0.10)',
-    line: dark ? '#4fb3da' : '#1786b4',
-    lineSoft: dark ? '#98d5ee' : '#4fb3da',
-    fillTop: dark ? 'rgba(79, 179, 218, 0.45)' : 'rgba(23, 134, 180, 0.28)',
-    fillBottom: dark ? 'rgba(79, 179, 218, 0)' : 'rgba(23, 134, 180, 0)',
-    bar: dark ? '#4fb3da' : '#1786b4',
-    barSoft: dark ? 'rgba(152, 213, 238, 0.35)' : 'rgba(152, 213, 238, 0.8)',
-    good: dark ? '#4fb3da' : '#1786b4',
-    warn: '#f2b14b',
-    bad: dark ? '#ff7b6e' : '#e05a4f',
-    // categorical: navy / teal / blue / cyan / slate, like the reference donut
+    surface: dark ? '#111827' : '#ffffff',
+    text: dark ? '#9ca3af' : '#6b7280',
+    grid: dark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(17, 24, 39, 0.06)',
+    line: dark ? '#93c5fd' : '#2563eb',
+    lineSoft: dark ? '#bfdbfe' : '#93b4f5',
+    fillTop: dark ? 'rgba(147, 197, 253, 0.28)' : 'rgba(37, 99, 235, 0.16)',
+    fillBottom: dark ? 'rgba(147, 197, 253, 0)' : 'rgba(37, 99, 235, 0)',
+    bar: dark ? '#93c5fd' : '#2563eb',
+    barSoft: dark ? 'rgba(255, 255, 255, 0.12)' : '#e5e7eb',
+    good: dark ? '#93c5fd' : '#2563eb', // healthy stock uses the accent color
+    warn: dark ? '#fbbf24' : '#f59e0b',
+    bad: dark ? '#f87171' : '#dc2626',
+    // categorical: cobalt / charcoal / light blue / gray, like the reference swatches
     series: dark
-      ? ['#4fb3da', '#98d5ee', '#1786b4', '#2ec4b6', '#7b8fa6', '#e1f2fa']
-      : ['#0a3c55', '#1786b4', '#4fb3da', '#2ec4b6', '#98d5ee', '#7b8fa6'],
-    tooltipBg: dark ? '#e1f2fa' : '#04202e',
-    tooltipText: dark ? '#04202e' : '#e1f2fa',
+      ? ['#93c5fd', '#e5e7eb', '#3b82f6', '#9ca3af', '#bfdbfe', '#6b7280']
+      : ['#2563eb', '#111827', '#93c5fd', '#9ca3af', '#1e40af', '#e5e7eb'],
+    tooltipBg: dark ? '#f9fafb' : '#111827',
+    tooltipText: dark ? '#111827' : '#f9fafb',
   };
 }
 

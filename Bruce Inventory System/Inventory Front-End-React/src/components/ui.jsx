@@ -68,17 +68,18 @@ export function Segmented({ options, value, onChange, label }) {
   );
 }
 
+const STATUS_TONE = { ok: 'info', low: 'low', out: 'out' };
 export function StatusPill({ status }) {
-  return <span className={`pill ${status}`}>{STATUS_LABEL[status]}</span>;
+  return <span className={`pill ${STATUS_TONE[status]}`}>{STATUS_LABEL[status]}</span>;
 }
 
-const PO_TONE = { draft: 'neutral', ordered: 'low', received: 'ok', cancelled: 'out' };
+const PO_TONE = { draft: 'neutral', ordered: 'info', received: 'ok', cancelled: 'out' };
 export function PoStatus({ status }) {
   return <span className={`pill ${PO_TONE[status]}`}>{status[0].toUpperCase() + status.slice(1)}</span>;
 }
 
 const MOVE_LABEL = { opening: 'Opening', receive: 'Received', sale: 'Sale', adjust: 'Adjustment' };
-const MOVE_TONE = { opening: 'neutral', receive: 'ok', sale: 'neutral', adjust: 'low' };
+const MOVE_TONE = { opening: 'neutral', receive: 'ok', sale: 'info', adjust: 'low' };
 export function MoveType({ type }) {
   return <span className={`pill ${MOVE_TONE[type]}`}>{MOVE_LABEL[type]}</span>;
 }
