@@ -30,8 +30,12 @@ def _config():
             'password': unquote(u.password or ''),
             'database': u.path.lstrip('/'),
         }
-        if parse_qs(u.query).get('ssl-mode', [''])[0].upper() in ('REQUIRED', 'VERIFY_CA', 'VERIFY_IDENTITY'):
-            config['ssl_disabled'] = False  # encrypted connection (cloud databases require it)
+        # cloud databases (Aiven, TiDB Cloud, ...) require an encrypted connection:
+        # use one for any database that isn't on this computer, unless ?ssl-mode=DISABLED
+        ssl_mode = parse_qs(u.query).get('ssl-mode', [''])[0].upper()
+        local = u.hostname in ('127.0.0.1', 'localhost')
+        if ssl_mode != 'DISABLED' and (not local or ssl_mode):
+            config['ssl_disabled'] = False
         return config
     return {
         'host': os.environ.get('DB_HOST', '127.0.0.1'),
