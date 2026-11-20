@@ -8,16 +8,41 @@ import os
 from contextlib import contextmanager
 from datetime import date, datetime
 from decimal import Decimal
+from urllib.parse import parse_qs, unquote, urlparse
 
 import mysql.connector
 from flask import g
 
-DB_CONFIG = {
-    'host': os.environ.get('DB_HOST', '127.0.0.1'),
-    'user': os.environ.get('DB_USER', 'root'),
-    'password': os.environ.get('DB_PASSWORD', '!r00tpwd'),
-    'database': os.environ.get('DB_NAME', 'brucestore'),
-}
+
+def _config():
+    """Where the database is.
+
+    Live: one DATABASE_URL like mysql://user:password@host:port/dbname?ssl-mode=REQUIRED
+    (the "Service URI" Aiven shows). On your computer: the local MySQL defaults below.
+    """
+    url = os.environ.get('DATABASE_URL')
+    if url:
+        u = urlparse(url)
+        config = {
+            'host': u.hostname,
+            'port': u.port or 3306,
+            'user': unquote(u.username or ''),
+            'password': unquote(u.password or ''),
+            'database': u.path.lstrip('/'),
+        }
+        if parse_qs(u.query).get('ssl-mode', [''])[0].upper() in ('REQUIRED', 'VERIFY_CA', 'VERIFY_IDENTITY'):
+            config['ssl_disabled'] = False  # encrypted connection (cloud databases require it)
+        return config
+    return {
+        'host': os.environ.get('DB_HOST', '127.0.0.1'),
+        'port': int(os.environ.get('DB_PORT', 3306)),
+        'user': os.environ.get('DB_USER', 'root'),
+        'password': os.environ.get('DB_PASSWORD', '!r00tpwd'),
+        'database': os.environ.get('DB_NAME', 'brucestore'),
+    }
+
+
+DB_CONFIG = _config()
 
 
 def connect():

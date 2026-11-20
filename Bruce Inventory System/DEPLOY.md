@@ -1,141 +1,50 @@
-# Putting Stop Mini Mart online (PythonAnywhere)
+# Putting Stop Mini Mart online (free)
 
-The live site runs entirely on PythonAnywhere's free plan: Flask serves both the API and the
-built React site, and PythonAnywhere provides the MySQL database. When you're done, the site is at
-**`https://YOURNAME.pythonanywhere.com`**.
+- **Aiven** hosts the MySQL database (free plan).
+- **Render** runs the website from this GitHub repo (free plan) at `https://stopminimart.onrender.com`
+  (or a similar name if that one is taken).
 
-Throughout this guide, replace **`YOURNAME`** with your PythonAnywhere username.
+The free Render plan sleeps after 15 minutes with no visitors; the first visit after that takes
+30–60 seconds to wake it up. Open the site a minute before a demo.
 
----
+## 1. Database (Aiven)
 
-## 1. Create the account
+1. Sign up at <https://aiven.io> (free, no card needed).
+2. **Create service** → **MySQL** → **Free plan** → pick a region near you (for example US East) → **Create**.
+3. Wait until the service shows **Running** (green), then copy the **Service URI** on its Overview page.
+   It looks like `mysql://avnadmin:PASSWORD@xxxx.aivencloud.com:12345/defaultdb?ssl-mode=REQUIRED`.
+   Keep it private: it contains the database password.
 
-1. Sign up at <https://www.pythonanywhere.com> → **Pricing & signup** → **Create a Beginner account** (free).
-2. Your username becomes the web address, so pick one you're happy with (for example `stopminimart`).
+## 2. Copy your data (optional)
 
-## 2. Create the database
-
-1. Open the **Databases** tab.
-2. Under **MySQL password**, set a database password and write it down. This is the `DB_PASSWORD` below.
-3. Under **Create a database**, type `brucestore` and click **Create**.
-   Its full name is **`YOURNAME$brucestore`**, and the host shown at the top is
-   **`YOURNAME.mysql.pythonanywhere-services.com`**.
-
-## 3. Get the code
-
-Open **Consoles** → **Bash** and run:
+On your Mac, in Terminal:
 
 ```bash
-git clone https://github.com/ntvo7/Inventory-Management-System.git
-python3.10 -m venv ~/.venvs/ims
-source ~/.venvs/ims/bin/activate
-pip install -r "Inventory-Management-System/Bruce Inventory System/requirements.txt"
+cd ~/Documents/GitHub/CIS4375_Project-Team4/"Bruce Inventory System"/deploy && ./import_data.sh
 ```
 
-Then make two secrets and keep the console open:
+Paste the Service URI when asked. It copies products, suppliers, orders and stock history
+(**not** user accounts). Skip this to start with an empty store.
 
-```bash
-python3 -c "import secrets; print(secrets.token_hex(32))"   # this is SECRET_KEY
-```
+## 3. Website (Render)
 
-Also choose the **owner (admin) password** for the live site (`ADMIN_PASSWORD`). Use a new one,
-not `brucestore`: that one is public in this repository.
-
-## 4. (Optional) Copy your products and history
-
-On your own computer, the file `Bruce Inventory System/deploy/brucestore-data.sql` holds the
-products, suppliers, orders and stock history (but **no user accounts**). Recreate it any time with:
-
-```bash
-mysqldump -uroot -p --no-tablespaces --single-transaction --skip-triggers --set-gtid-purged=OFF \
-  --ignore-table=brucestore.app_user brucestore > "Bruce Inventory System/deploy/brucestore-data.sql"
-```
-
-1. **Files** tab → **Upload a file** → choose `brucestore-data.sql` (it lands in `/home/YOURNAME/`).
-2. In the Bash console:
-
-   ```bash
-   mysql -u YOURNAME -h YOURNAME.mysql.pythonanywhere-services.com -p 'YOURNAME$brucestore' < ~/brucestore-data.sql
-   ```
-
-   It asks for the database password from step 2.
-
-Skip this step to start with an empty store. The tables are created automatically on first start.
-
-## 5. Create the web app
-
-1. **Web** tab → **Add a new web app** → **Next** → **Manual configuration** → **Python 3.10** → **Next**.
-2. In the page that opens, fill in:
-
-   | Setting | Value |
-   |---|---|
-   | **Source code** | `/home/YOURNAME/Inventory-Management-System/Bruce Inventory System/Inventory Back-End` |
-   | **Virtualenv** | `/home/YOURNAME/.venvs/ims` |
-   | **Force HTTPS** (Security section) | **Enabled** |
-
-3. Under **Static files**, add one row (optional, makes pages load faster):
-
-   | URL | Directory |
-   |---|---|
-   | `/assets/` | `/home/YOURNAME/Inventory-Management-System/Bruce Inventory System/Inventory Back-End/web/assets` |
-
-4. Click the **WSGI configuration file** link (`/var/www/YOURNAME_pythonanywhere_com_wsgi.py`),
-   **delete everything in it**, paste this, and fill in the four secrets:
-
-   ```python
-   import os
-   import sys
-
-   # --- secrets: these live only here, never in GitHub ---
-   os.environ['DB_HOST'] = 'YOURNAME.mysql.pythonanywhere-services.com'
-   os.environ['DB_USER'] = 'YOURNAME'
-   os.environ['DB_NAME'] = 'YOURNAME$brucestore'
-   os.environ['DB_PASSWORD'] = 'the database password from step 2'
-   os.environ['SECRET_KEY'] = 'the long random string from step 3'
-   os.environ['ADMIN_PASSWORD'] = 'the owner password you chose'
-
-   path = '/home/YOURNAME/Inventory-Management-System/Bruce Inventory System/Inventory Back-End'
-   if path not in sys.path:
-       sys.path.insert(0, path)
-
-   from wsgi import application  # noqa: E402
-   ```
-
-5. Click **Save**, go back to the **Web** tab, and press the big green **Reload** button.
-
-## 6. Open the site
-
-Go to **`https://YOURNAME.pythonanywhere.com`** and log in as **`admin`** with your `ADMIN_PASSWORD`.
-Then open **Users** to add employees.
-
-`ADMIN_PASSWORD` is only used to create the owner account the first time. To change it later,
-use **Change password** in the sidebar.
-
----
+1. Sign up at <https://render.com> with **GitHub**.
+2. **New** → **Blueprint** → choose **ntvo7/Inventory-Management-System** → **Connect**.
+   Render reads `render.yaml` from the repo and sets everything up.
+3. It asks for two values:
+   - **DATABASE_URL**: paste the Aiven Service URI.
+   - **ADMIN_PASSWORD**: choose the owner password for the live site (not `brucestore`).
+4. Click **Apply** / **Deploy**. The first build takes a few minutes.
+5. Open the address Render shows and log in as **`admin`** with your ADMIN_PASSWORD.
 
 ## Updating the live site
 
-After pushing changes to GitHub:
+Render redeploys automatically every time `main` is pushed to GitHub.
+If you changed React code, run `npm run build` in `Inventory Front-End-React` first and commit the
+result (`Inventory Back-End/web`), because that built copy is what the live site shows.
 
-1. On your computer, **if the React code changed**, rebuild it first and commit the result:
-   ```bash
-   cd "Bruce Inventory System/Inventory Front-End-React" && npm run build
-   ```
-   (This writes the site into `Inventory Back-End/web`, which is what the live server shows.)
-2. On PythonAnywhere, in a Bash console:
-   ```bash
-   cd ~/Inventory-Management-System && git pull
-   ```
-3. **Web** tab → **Reload**.
+## If something goes wrong
 
-## Good to know
-
-- **Free plan limits:** low traffic only, and you must log in to PythonAnywhere and click
-  **"Run until 3 months from today"** on the Web tab at least every 3 months, or the site is paused.
-- **Something broken?** The **Web** tab has an **error log** link. Most first-time problems are a
-  typo in the WSGI file. A message like *"Set these environment variables before going live"* means
-  one of the secrets is missing.
-- **What the live mode does differently** (`PRODUCTION=1`, set by `wsgi.py`): debug tools are off,
-  it refuses to start without the secrets, login cookies only travel over HTTPS, and database error
-  details are hidden from visitors.
-- Running on your own computer is unchanged: `run_app.command` / `run_app.bat`.
+Render → your service → **Logs**. A message like *"Set these environment variables before going live"*
+means a value from step 3 is missing. Running on your own computer is unchanged
+(`run_app.command` / `run_app.bat`).

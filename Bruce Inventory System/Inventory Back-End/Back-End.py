@@ -36,7 +36,9 @@ app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
 if PRODUCTION:
     # never run live with a made-up key or the public default password
-    missing = [name for name in ('SECRET_KEY', 'ADMIN_PASSWORD', 'DB_PASSWORD') if not os.environ.get(name)]
+    missing = [name for name in ('SECRET_KEY', 'ADMIN_PASSWORD') if not os.environ.get(name)]
+    if not (os.environ.get('DATABASE_URL') or os.environ.get('DB_PASSWORD')):
+        missing.append('DATABASE_URL')
     if missing:
         raise RuntimeError('Set these environment variables before going live: ' + ', '.join(missing))
     app.secret_key = os.environ['SECRET_KEY']

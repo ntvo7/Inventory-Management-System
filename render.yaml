@@ -1,0 +1,20 @@
+# Render setup for the live site (https://render.com → New → Blueprint → pick this repo).
+# Render reads this file and creates the web service. You only type in the two values
+# marked "sync: false" (DATABASE_URL and ADMIN_PASSWORD). See "Bruce Inventory System/DEPLOY.md".
+services:
+  - type: web
+    name: stopminimart
+    runtime: python
+    plan: free
+    buildCommand: pip install -r "Bruce Inventory System/requirements.txt"
+    startCommand: gunicorn --chdir "Bruce Inventory System/Inventory Back-End" --bind 0.0.0.0:$PORT --workers 1 --threads 4 wsgi:application
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: SECRET_KEY
+        generateValue: true   # Render makes a random one
+      - key: DATABASE_URL
+        sync: false           # paste the Aiven "Service URI"
+      - key: ADMIN_PASSWORD
+        sync: false           # owner password for the live site (not "brucestore")
