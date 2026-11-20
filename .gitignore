@@ -2,3 +2,6 @@ node_modules/
 venv/
 __pycache__/
 .DS_Store
+
+# database exports for deploying (keep data out of the public repo)
+Bruce Inventory System/deploy/*.sql

@@ -4,6 +4,8 @@ Inventory system for Bruce's convenience store: products, receiving, sales, FIFO
 suppliers and purchase orders, forecasting, reports, and user accounts. React front end with a
 Flask + MySQL backend. Light and dark mode.
 
+**Live site:** see [`../DEPLOY.md`](../DEPLOY.md) for putting it online (PythonAnywhere).
+
 ## Run it
 
 Double-click `run_app.command` (Mac) or `run_app.bat` (Windows) in the `Bruce Inventory System` folder.
@@ -70,5 +72,8 @@ Front end (`Inventory Front-End-React/src/`):
 - `api.js`: every call to Flask; `format.js`: money, dates, stock status
 - `pages/`: one file per page; `components/`: sidebar, modals, shared UI
 - `app.css`: the design system (colors for both themes are at the top)
+
+To update what the live site shows after changing React code, run `npm run build` here: it writes
+the finished site into `Inventory Back-End/web`, which Flask serves in production.
 
 The old EJS site in `Inventory Front-End/` still works against the same API (it signs in with Basic Auth), but is no longer launched.
