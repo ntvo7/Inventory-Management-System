@@ -3,8 +3,9 @@ import * as api from './api.js';
 
 const AuthContext = createContext(null);
 
-// Keeps track of who is logged in. Flask holds the real session in a cookie;
-// this just asks Flask (/api/me) on page load and after login/logout.
+// Who is logged in. Flask keeps the real session in a cookie; this asks Flask
+// (/api/me) when the page loads and after login / logout.
+// user = { user_id, username, full_name, role: 'admin' | 'employee' }
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [checking, setChecking] = useState(true);
@@ -14,7 +15,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     api
       .me()
-      .then((data) => setUser(data.user))
+      .then(setUser)
       .catch(() => setUser(null))
       .finally(() => setChecking(false));
 
@@ -27,7 +28,7 @@ export function AuthProvider({ children }) {
   const login = useCallback(async (username, password) => {
     const data = await api.login(username, password);
     setReason(null);
-    setUser(data.user);
+    setUser(data);
   }, []);
 
   const logout = useCallback(async () => {
@@ -39,10 +40,9 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  const isAdmin = user?.role === 'admin';
   return (
-    <AuthContext.Provider value={{ user, checking, reason, login, logout }}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={{ user, isAdmin, checking, reason, login, logout }}>{children}</AuthContext.Provider>
   );
 }
 

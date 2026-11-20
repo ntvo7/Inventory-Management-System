@@ -1,42 +1,74 @@
-# Bruce Inventory System: React front end
+# Stop Mini Mart: Bruce Inventory System
 
-The React version of the site. It replaces the old EJS site in `Inventory Front-End/` and talks to the same
-Flask backend (`Inventory Back-End/Back-End.py`) and MySQL database.
+Inventory system for Bruce's convenience store: products, receiving, sales, FIFO/LIFO valuation,
+suppliers and purchase orders, forecasting, reports, and user accounts. React front end with a
+Flask + MySQL backend. Light and dark mode.
 
 ## Run it
 
-Easiest: double-click `run_app.command` (Mac) or `run_app.bat` (Windows) in the `Bruce Inventory System` folder.
+Double-click `run_app.command` (Mac) or `run_app.bat` (Windows) in the `Bruce Inventory System` folder.
 It starts MySQL (Mac), Flask on port 5000 and this app on port 5173, then opens http://127.0.0.1:5173.
 
-By hand:
+First login: `admin` / `brucestore` (the owner account). Change the password from the sidebar.
+
+On first start the backend creates any missing tables by itself (`Inventory Back-End/schema.py`).
+
+### Demo data (optional)
+
+To fill the charts with 60 days of example sales, deliveries and five fictional suppliers:
 
 ```bash
-cd "Inventory Back-End" && python3 Back-End.py     # terminal 1
-cd "Inventory Front-End-React" && npm install && npm run dev   # terminal 2
+cd "Bruce Inventory System/Inventory Back-End"
+../venv/bin/python seed_demo_data.py            # add
+../venv/bin/python seed_demo_data.py --remove   # take it out again
 ```
 
-Log in with `admin` / `brucestore`.
+Everything it adds is labelled "Demo", and current on-hand quantities are left unchanged.
 
 ## Pages
 
-| Page | URL | What it does |
+| Page | Who | What it does |
 |---|---|---|
-| Login | `/login` | Logs in through Flask (`/api/login`), which sets a session cookie |
-| Home | `/` | Bar chart of products with fewer than 10 on hand |
-| Dashboard | `/dashboard` | Product table, live filters, add / update / delete |
-| Reports | `/reports` | Low stock (1 to 9) and out of stock (0) tables, filters, print |
-| History | `/history` | Stock changes by product and date range; pick a product to see its trend chart |
+| **Home** | everyone | Inventory value, low stock alerts, stock status donut, sales forecast line chart, stock levels bar chart |
+| **Operation** | everyone | Product list and filters; **Receive**, **Sell**, **Adjust** (damaged, expired, count correction…) and **Edit**; FIFO / LIFO switch |
+| **Suppliers** | everyone | Supplier cards; purchase orders (draft → ordered → received / cancelled); reorder suggestions that become an order in one click |
+| **Reports** | everyone | Stock summary, Movements (every stock change, with a stock level chart per product), Sales, Forecast (sales + supplies), Supplier performance. Print or export CSV |
+| **Users** | owner only | Add employees, set roles, reset passwords, deactivate accounts |
 
-## Where the code is
+The sidebar ("Dashboard") shows who is logged in and their role.
 
-- `src/App.jsx`: page routes; pages other than Login require a logged-in user
-- `src/auth.jsx`: login state (asks Flask `/api/me` on load)
-- `src/api.js`: every call to Flask, plus shared filter and date helpers
-- `src/pages/`: one file per page
-- `src/components/`: Sidebar, FilterBar, ProductTable, ProductModal
-- `vite.config.js`: forwards `/api` to Flask on port 5000, so the login cookie works without CORS
+### Roles
 
-## Login and the API
+- **Owner (admin)**: everything, plus managing users and deleting products or suppliers.
+- **Employee**: everything else.
 
-Every `/api/stock*` and `/api/*_change` route in Flask needs either the session cookie (this app) or HTTP Basic Auth
-(the old Express site sends it from `config.js`). Without either, Flask answers 401 and this app sends you to the login page.
+## How the numbers work
+
+- **Stock status**: out = 0 on hand; low = below the product's minimum stock; otherwise healthy.
+- **FIFO / LIFO**: every delivery is a cost "lot". FIFO counts the oldest lots as sold first (stock left is valued at
+  the newest costs); LIFO counts the newest first (stock left is valued at the oldest costs). See `Inventory Back-End/valuation.py`.
+- **Sales forecast**: a straight trend line fitted to the last 28 complete days of sales.
+- **Reorder suggestions**: reorder when on hand + on order falls to (average daily sales × supplier lead time) + minimum stock;
+  order enough for the lead time plus 7 days.
+- Products that existed before this upgrade got an "opening balance" lot valued at 70% of the selling price, since
+  their real cost was never recorded.
+
+## Code map
+
+Backend (`Inventory Back-End/`):
+
+- `Back-End.py`: starts Flask and registers the modules below
+- `auth.py`: login, roles, user management
+- `inventory.py`: products, receive / sell / adjust, movements, valuation
+- `suppliers.py`: suppliers and purchase orders
+- `forecast.py`: sales forecast, reorder suggestions, sales report
+- `schema.py`: creates and upgrades tables; `db.py`: database helpers
+
+Front end (`Inventory Front-End-React/src/`):
+
+- `App.jsx`: page routes; `auth.jsx`: login state; `theme.jsx`: light / dark mode
+- `api.js`: every call to Flask; `format.js`: money, dates, stock status
+- `pages/`: one file per page; `components/`: sidebar, modals, shared UI
+- `app.css`: the design system (colors for both themes are at the top)
+
+The old EJS site in `Inventory Front-End/` still works against the same API (it signs in with Basic Auth), but is no longer launched.

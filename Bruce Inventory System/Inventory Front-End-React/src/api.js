@@ -1,8 +1,8 @@
-// Calls to the Flask backend. Vite forwards /api to http://127.0.0.1:5000 (see vite.config.js),
-// so the login cookie Flask sets belongs to this site and Flask needs no CORS changes.
+// Every call to the Flask backend. Vite forwards /api to http://127.0.0.1:5000 (vite.config.js),
+// so the login cookie Flask sets belongs to this site.
 
 let onUnauthorized = () => {};
-// auth.jsx registers this so any "login required" answer sends the user back to the login page
+// auth.jsx registers this: any "login required" answer sends the user back to the login page
 export function setUnauthorizedHandler(fn) {
   onUnauthorized = fn;
 }
@@ -18,50 +18,57 @@ async function request(method, path, body, { quiet401 = false } = {}) {
   const data = isJson ? await res.json() : await res.text();
   if (!res.ok) {
     if (res.status === 401 && !quiet401) onUnauthorized();
-    const detail = (isJson && (data.detail || data.error)) || res.statusText;
-    const err = new Error(res.status === 401 ? detail : `Server error ${res.status}: ${detail}`);
+    const message = (isJson && (data.error || data.detail)) || `Server error ${res.status}`;
+    const err = new Error(message);
     err.status = res.status;
     throw err;
   }
   return data;
 }
 
-// login
+const get = (path) => request('GET', path);
+const post = (path, body) => request('POST', path, body || {});
+const put = (path, body) => request('PUT', path, body);
+const del = (path, body) => request('DELETE', path, body);
+const qs = (params) => {
+  const s = new URLSearchParams(Object.entries(params).filter(([, v]) => v !== '' && v != null)).toString();
+  return s ? `?${s}` : '';
+};
+
+// login & users
 export const me = () => request('GET', '/api/me', null, { quiet401: true });
-export const login = (username, password) =>
-  request('POST', '/api/login', { username, password }, { quiet401: true });
-export const logout = () => request('POST', '/api/logout');
+export const login = (username, password) => request('POST', '/api/login', { username, password }, { quiet401: true });
+export const logout = () => post('/api/logout');
+export const changePassword = (current_password, new_password) => post('/api/me/password', { current_password, new_password });
+export const getUsers = () => get('/api/users');
+export const createUser = (user) => post('/api/users', user);
+export const updateUser = (id, changes) => put(`/api/users/${id}`, changes);
 
-// products
-export const getProducts = () => request('GET', '/api/stock');
-export const addProduct = (product) => request('POST', '/api/stock', product);
-export const updateProduct = (product) => request('PUT', '/api/stock', product);
-export const deleteProduct = (s_id) => request('DELETE', '/api/stock', { s_id });
+// products & stock actions
+export const getProducts = () => get('/api/stock');
+export const addProduct = (product) => post('/api/stock', product);
+export const updateProduct = (product) => put('/api/stock', product);
+export const deleteProduct = (s_id) => del('/api/stock', { s_id });
+export const receiveStock = (s_id, body) => post(`/api/stock/${s_id}/receive`, body);
+export const sellStock = (s_id, body) => post(`/api/stock/${s_id}/sell`, body);
+export const adjustStock = (s_id, body) => post(`/api/stock/${s_id}/adjust`, body);
 
-// history
-export const getStockChanges = () => request('GET', '/api/stock_change');
+// reports data
+export const getValuation = () => get('/api/valuation');
+export const getMovements = (filters = {}) => get(`/api/movements${qs(filters)}`);
+export const getForecast = (days = 14) => get(`/api/forecast?days=${days}`);
+export const getSalesReport = (start, end) => get(`/api/reports/sales${qs({ start, end })}`);
+
+// suppliers & purchase orders
+export const getSuppliers = () => get('/api/suppliers');
+export const createSupplier = (s) => post('/api/suppliers', s);
+export const updateSupplier = (id, s) => put(`/api/suppliers/${id}`, s);
+export const deleteSupplier = (id) => del(`/api/suppliers/${id}`);
+export const getPurchaseOrders = (status) => get(`/api/purchase_orders${qs({ status })}`);
+export const getPurchaseOrder = (id) => get(`/api/purchase_orders/${id}`);
+export const createPurchaseOrder = (po) => post('/api/purchase_orders', po);
+export const setPurchaseOrderStatus = (id, status) => post(`/api/purchase_orders/${id}/status`, { status });
+export const receivePurchaseOrder = (id) => post(`/api/purchase_orders/${id}/receive`);
 
 export const CATEGORIES = ['Beverage', 'Snack', 'Alcohol', 'Cigarette', 'Other'];
-
-// Products with fewer than this many on hand are "low stock" (same as server.js)
-export const LOW_STOCK_THRESHOLD = 10;
-
-// Same filtering rules as server.js
-export function filterProducts(products, name, category) {
-  const n = name.trim().toLowerCase();
-  const c = category.toLowerCase();
-  return products.filter(
-    (p) =>
-      (!n || p.s_name.toLowerCase().includes(n)) &&
-      (!c || (p.s_category || '').toLowerCase() === c)
-  );
-}
-
-export const formatPrice = (price) => `$${Number(price).toFixed(2)}`;
-
-// Flask sends dates like "Sun, 03 Nov 2024 00:00:00 GMT"; these read them in UTC so the day never shifts
-export const toYMD = (date) => new Date(date).toISOString().slice(0, 10);
-export function formatDate(date) {
-  const [y, m, d] = toYMD(date).split('-');
-  return `${m}/${d}/${y}`;
-}
+export const UNITS = ['each', 'pack', 'case', 'bottle', 'can', 'carton', 'box'];
