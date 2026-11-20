@@ -1,9 +1,14 @@
 @echo off
+REM Run from the "Bruce Inventory System" folder. Requires Python, Node.js and a running MySQL server.
+cd /d "%~dp0"
+
 REM Set up the Node.js environment
 echo Checking for Node.js dependencies...
-if not exist node_modules (
+if not exist "Inventory Front-End\node_modules" (
     echo Installing Node.js dependencies...
-    npm install
+    pushd "Inventory Front-End"
+    call npm install
+    popd
 )
 
 REM Set up the Python virtual environment
@@ -21,12 +26,13 @@ pip install -r requirements.txt
 
 REM Run the Python backend
 echo Starting Python backend...
-start cmd /k "venv\Scripts\activate && python backend.py"
+start "Backend" cmd /k "call "%~dp0venv\Scripts\activate" && cd /d "%~dp0Inventory Back-End" && python Back-End.py"
 
 REM Run the Node.js server
 echo Starting Node.js server...
-start cmd /k "node server.js"
+start "Frontend" cmd /k "cd /d "%~dp0Inventory Front-End" && node server.js"
 
 REM Keep the main window open
-echo Both servers are now running. Close this window to stop them.
+echo Both servers are now running. Open http://127.0.0.1:9000 in your browser.
+echo Close the Backend and Frontend windows to stop them.
 pause

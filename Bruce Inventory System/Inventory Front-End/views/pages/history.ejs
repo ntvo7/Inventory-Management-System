@@ -303,8 +303,9 @@
                         // Add click event listener to each table row for product selection
                         const rows = document.querySelectorAll('table tbody tr');
                         rows.forEach(row => {
+                            const productId = row.getAttribute('data-product-id');
+                            if (!productId) return; // skip the "No products found." row
                             row.addEventListener('click', function() {
-                                const productId = this.getAttribute('data-product-id');
                                 document.getElementById('nfilter').value = productId;
                                 document.getElementById('filterForm').submit();
                             });

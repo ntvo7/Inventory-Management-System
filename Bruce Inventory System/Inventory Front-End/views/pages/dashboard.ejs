@@ -220,8 +220,10 @@
                         <tbody>
                             <% if (locals.product && locals.product.length) { %>
                                 <% locals.product.forEach(function(products) { %>
-                                    <tr style="font-weight:normal"
-                                        onclick="openUpdateModal('<%= products.s_name %>', <%= products.s_price %>, <%= products.instock %>, '<%= products.s_category %>', <%= products.s_id %>)">
+                                    <tr style="font-weight:normal; cursor:pointer" class="product-row"
+                                        data-name="<%= products.s_name %>" data-price="<%= products.s_price %>"
+                                        data-onhand="<%= products.instock %>" data-category="<%= products.s_category %>"
+                                        data-id="<%= products.s_id %>">
                                         <td><%= products.s_name %></td>
                                         <td>$<%= products.s_price %></td>
                                         <td><%= products.s_category %></td>
@@ -339,6 +341,15 @@
             document.getElementById('updateForm').action = `/update_product/${encodeURIComponent(s_id)}`;
             updateModal.style.display = "block";
         }
+
+        // Open the update modal when a product row is clicked.
+        // Values come from data-* attributes so names with quotes (e.g. Lay's) don't break the page.
+        document.querySelectorAll('.product-row').forEach(function(row) {
+            row.addEventListener('click', function() {
+                const d = row.dataset;
+                openUpdateModal(d.name, d.price, d.onhand, d.category, d.id);
+            });
+        });
 
         // Function to delete the product
         function deleteProduct() {
