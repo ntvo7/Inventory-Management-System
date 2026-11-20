@@ -37,8 +37,9 @@ def main():
     import db  # reads DATABASE_URL
     import mysql.connector
 
-    print(f"3/3 Uploading to {db.DB_CONFIG['host']} ...")
+    print(f"3/3 Uploading to {db.DB_CONFIG['host']} (database: {db.DB_CONFIG['database']}) ...")
     try:
+        db.ensure_database()
         con = db.connect()
     except mysql.connector.Error as e:
         sys.exit(f'Could not connect: {e.msg}\nCheck that the database is running and the string is complete.')

@@ -13,6 +13,11 @@ from urllib.parse import parse_qs, unquote, urlparse
 import mysql.connector
 from flask import g
 
+# Built-in databases of MySQL / TiDB that the app must never write into. If a connection
+# string points at one of them (TiDB's Connect screen defaults to "sys"), use this instead:
+APP_DATABASE = 'brucestore'
+SYSTEM_DATABASES = {'', 'sys', 'mysql', 'information_schema', 'performance_schema', 'metrics_schema', 'test'}
+
 
 def _config():
     """Where the database is.
@@ -30,6 +35,8 @@ def _config():
             'password': unquote(u.password or ''),
             'database': u.path.lstrip('/'),
         }
+        if config['database'].lower() in SYSTEM_DATABASES:
+            config['database'] = APP_DATABASE
         # cloud databases (Aiven, TiDB Cloud, ...) require an encrypted connection:
         # use one for any database that isn't on this computer, unless ?ssl-mode=DISABLED
         ssl_mode = parse_qs(u.query).get('ssl-mode', [''])[0].upper()
@@ -54,6 +61,18 @@ DB_CONFIG = _config()
 
 def connect():
     return mysql.connector.connect(**DB_CONFIG)
+
+
+def ensure_database():
+    """Create the app's database if it doesn't exist yet (first start on a new server)."""
+    settings = {k: v for k, v in DB_CONFIG.items() if k != 'database'}
+    con = mysql.connector.connect(**settings)
+    try:
+        cur = con.cursor()
+        cur.execute(f"CREATE DATABASE IF NOT EXISTS `{DB_CONFIG['database']}`")
+        cur.close()
+    finally:
+        con.close()
 
 
 def get_db():

@@ -4,7 +4,7 @@ Safe to run every time: it only adds what is missing. A teammate with an older
 brucestore database gets the new tables and columns automatically.
 """
 
-from db import connect
+from db import connect, ensure_database
 
 TABLES = [
     # --- original tables (created only if the database is brand new) ---
@@ -116,6 +116,7 @@ OPENING_COST_RATIO = 0.70
 
 
 def ensure_schema(default_admin_password='brucestore'):
+    ensure_database()
     con = connect()
     cur = con.cursor()
     try:
