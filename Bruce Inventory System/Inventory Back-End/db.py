@@ -1,7 +1,11 @@
 """Database helpers shared by every route.
 
-Each request gets its own MySQL connection (stored on flask.g and closed when the
-request ends), so requests running at the same time never share a connection.
+Connections come from a small pool and are reused between requests: opening a new
+encrypted connection to a cloud database takes about half a second, reusing one is
+nearly free. Each request borrows one connection (stored on flask.g) and gives it back
+when the request ends, so requests running at the same time never share a connection.
+Connections run in autocommit mode (every read sees the latest data); several writes
+that must succeed or fail together use `with transaction():`.
 Values are passed separately from the SQL text so the driver escapes them.
 """
 import os
@@ -10,7 +14,10 @@ from datetime import date, datetime
 from decimal import Decimal
 from urllib.parse import parse_qs, unquote, urlparse
 
+import threading
+
 import mysql.connector
+from mysql.connector import pooling
 from flask import g
 
 # Built-in databases of MySQL / TiDB that the app must never write into. If a connection
@@ -75,16 +82,42 @@ def ensure_database():
         con.close()
 
 
+_pool = None
+_pool_lock = threading.Lock()
+POOL_SIZE = int(os.environ.get('DB_POOL_SIZE', 5))  # >= web server threads
+
+
+def _get_pool():
+    global _pool
+    if _pool is None:
+        with _pool_lock:
+            if _pool is None:
+                _pool = pooling.MySQLConnectionPool(
+                    pool_name='app', pool_size=POOL_SIZE, pool_reset_session=False,
+                    autocommit=True, **DB_CONFIG)
+    return _pool
+
+
 def get_db():
     if 'db' not in g:
-        g.db = connect()
+        try:
+            con = _get_pool().get_connection()
+        except pooling.PoolError:
+            con = mysql.connector.connect(autocommit=True, **DB_CONFIG)  # pool busy: one extra
+        # a pooled connection may have been closed by the server while idle: reopen it
+        con.ping(reconnect=True, attempts=2, delay=0)
+        g.db = con
     return g.db
 
 
 def close_db(_error=None):
     db = g.pop('db', None)
     if db is not None:
-        db.close()
+        try:
+            if db.in_transaction:
+                db.rollback()
+        finally:
+            db.close()  # pooled connections go back to the pool
 
 
 def _clean(value):
@@ -124,7 +157,7 @@ def execute(sql, params=(), commit=True):
         last_id = cur.lastrowid
     finally:
         cur.close()
-    if commit:
+    if commit and not db.autocommit:
         db.commit()
     return last_id
 
@@ -133,6 +166,7 @@ def execute(sql, params=(), commit=True):
 def transaction():
     """Group several execute(..., commit=False) calls: all succeed or none do."""
     db = get_db()
+    db.start_transaction()
     try:
         yield
         db.commit()

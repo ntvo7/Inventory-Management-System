@@ -84,7 +84,9 @@ def react_site(path):
         return ('The React site is not built. Run "npm run build" in Inventory Front-End-React, '
                 'or use the dev server on port 5173.'), 404
     if path and os.path.isfile(os.path.join(WEB_DIR, path)):
-        return send_from_directory(WEB_DIR, path)
+        # built JS/CSS files have a fingerprint in their name, so browsers can keep them for a year
+        max_age = 31536000 if path.startswith('assets/') else 0
+        return send_from_directory(WEB_DIR, path, max_age=max_age)
     return send_from_directory(WEB_DIR, 'index.html')
 
 

@@ -18,7 +18,7 @@ from flask import Blueprint, jsonify, request
 
 from auth import login_required
 from db import query
-from inventory import last_cost
+from schema import OPENING_COST_RATIO
 
 bp = Blueprint('forecast', __name__)
 
@@ -82,6 +82,11 @@ def forecast():
         "s.name AS supplier_name, s.lead_time_days FROM stock p "
         "LEFT JOIN supplier s ON s.supplier_id = p.supplier_id AND s.active = 1 ORDER BY p.s_name", raw=True,
     )
+    # latest unit cost of every product in ONE query (one query per product is slow online)
+    latest_cost = {}
+    for lot in query("SELECT s_id, unit_cost FROM stock_lot ORDER BY received_at, lot_id", raw=True):
+        latest_cost[lot['s_id']] = float(lot['unit_cost'])
+
     rows = []
     for p in products:
         avg = sold.get(p['s_id'], 0.0) / HISTORY_DAYS
@@ -93,7 +98,7 @@ def forecast():
         target = math.ceil(avg * (lead + COVER_DAYS)) + minimum
         suggest_qty = max(target - on_hand - incoming, 0)
         needs_order = on_hand + incoming <= reorder_point and suggest_qty > 0
-        cost = last_cost(p['s_id'], p['s_price'])
+        cost = latest_cost.get(p['s_id'], round(float(p['s_price'] or 0) * OPENING_COST_RATIO, 2))
         rows.append({
             's_id': p['s_id'], 's_name': p['s_name'], 's_category': p['s_category'],
             'supplier_id': p['supplier_id'] if p['supplier_name'] else None,
