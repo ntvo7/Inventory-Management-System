@@ -36,6 +36,9 @@ def _config():
         local = u.hostname in ('127.0.0.1', 'localhost')
         if ssl_mode != 'DISABLED' and (not local or ssl_mode):
             config['ssl_disabled'] = False
+        # the pure-Python driver supports every login method cloud databases use
+        # (TiDB Cloud uses mysql_native_password, which MySQL 9 client libraries dropped)
+        config['use_pure'] = True
         return config
     return {
         'host': os.environ.get('DB_HOST', '127.0.0.1'),
