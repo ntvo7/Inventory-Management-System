@@ -1,0 +1,155 @@
+/* Same look as the EJS Dashboard (views/pages/dashboard.ejs + partials/dash.ejs) */
+
+body { margin: 0; font-family: Arial, sans-serif; background: #fff; }
+
+.layout { display: flex; gap: 16px; }
+.content { flex: 1; padding: 50px 16px 16px; min-width: 0; }
+
+/* side bar portion */
+.sidebar {
+  width: 220px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #74ebd5, #acb6e5);
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  font-weight: bold;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+.sidebar a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  padding: 12px 15px;
+  margin-bottom: 12px;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.3s, transform 0.2s;
+  font-size: 16px;
+}
+.sidebar a:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
+.sidebar a.active { background: #28a745; box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3); }
+.sidebar-title { margin-bottom: 20px; color: #000; font-size: 24px; text-align: center; }
+
+h2 { text-align: center; }
+
+/* button portion */
+.action-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 20px; }
+.btn {
+  padding: 10px 20px;
+  color: #000;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+}
+.btn:hover { transform: translateY(-3px); }
+.btn-show-all { background: linear-gradient(90deg, #3498db, #6dd5fa); box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3); }
+.btn-add-product { background: linear-gradient(90deg, #28a745, #85d992); box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3); }
+
+/* filter portion */
+.filter-section {
+  display: flex;
+  justify-content: center;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+.filter-form { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+.form-label { font-weight: bold; color: #333; }
+.form-select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  width: 160px;
+  transition: border-color 0.3s;
+}
+.form-select:focus { outline: none; border-color: #17a2b8; }
+.result-count { color: #666; font-size: 14px; }
+
+/* table portion */
+.table-wrap { max-height: 360px; overflow-y: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 10px; text-align: left; }
+th { background-color: #f2f2f2; position: sticky; top: 0; }
+td:last-child, th:last-child { text-align: right; }
+tbody tr:hover { background-color: #f5f5f5; cursor: pointer; }
+.status { text-align: center; color: #666; padding: 20px; }
+.status.error { color: #d9534f; font-weight: bold; }
+
+/* modal portion */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+.modal-content {
+  position: relative;
+  background: #fefefe;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+  text-align: center;
+}
+.modal-content form { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.modal-content input,
+.modal-content select {
+  width: 100%;
+  max-width: 300px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+.modal-content button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+.modal-content button:hover { background-color: #45a049; }
+.modal-content button:disabled { opacity: 0.6; cursor: wait; }
+.modal-content .delete-button { background-color: #d9534f; }
+.modal-content .delete-button:hover { background-color: #c9302c; }
+.modal-content .close {
+  position: absolute;
+  margin: 0;
+  padding: 0 4px;
+  line-height: 1;
+  top: 6px;
+  right: 14px;
+  color: #aaa;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+.modal-content .close:hover { color: #000; background: none; }
+.form-error { color: #d9534f; font-size: 14px; }
+
+footer { text-align: center; color: #6c757d; margin-top: 30px; }
+
+@media (max-width: 700px) {
+  .layout { flex-direction: column; }
+  .sidebar { width: 100%; min-height: auto; }
+}
