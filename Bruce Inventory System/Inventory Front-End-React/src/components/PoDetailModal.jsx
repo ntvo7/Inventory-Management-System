@@ -1,4 +1,5 @@
 import * as api from '../api.js';
+import { useAuth } from '../auth.jsx';
 import { date, dateTime, money } from '../format.js';
 import { useAsync } from '../useAsync.js';
 import { ErrorMsg, Loading, Modal, PoStatus, useSubmit } from './ui.jsx';
@@ -6,6 +7,8 @@ import { ErrorMsg, Loading, Modal, PoStatus, useSubmit } from './ui.jsx';
 export default function PoDetailModal({ poId, onClose, onChanged }) {
   const { data: po, loading, error } = useAsync(() => api.getPurchaseOrder(poId), [poId]);
   const { busy, error: actionError, run } = useSubmit();
+  const { canEdit } = useAuth();
+  const open = canEdit && ['draft', 'ordered'].includes(po?.status);
 
   async function act(kind) {
     if (kind === 'cancel' && !confirm('Cancel this order?')) return;
@@ -46,12 +49,12 @@ export default function PoDetailModal({ poId, onClose, onChanged }) {
           {po.notes && <p className="muted" style={{ marginTop: 10 }}>Notes: {po.notes}</p>}
           {actionError && <div className="form-error" style={{ marginTop: 12 }}>{actionError}</div>}
           <div className="modal-foot">
-            {['draft', 'ordered'].includes(po.status) && (
+            {open && (
               <button className="btn btn-danger left" onClick={() => act('cancel')} disabled={busy}>Cancel order</button>
             )}
             <button className="btn btn-secondary" onClick={onClose}>Close</button>
-            {po.status === 'draft' && <button className="btn btn-secondary" onClick={() => act('order')} disabled={busy}><i className="fas fa-paper-plane"></i> Mark as ordered</button>}
-            {['draft', 'ordered'].includes(po.status) && (
+            {open && po.status === 'draft' && <button className="btn btn-secondary" onClick={() => act('order')} disabled={busy}><i className="fas fa-paper-plane"></i> Mark as ordered</button>}
+            {open && (
               <button className="btn btn-primary" onClick={() => act('receive')} disabled={busy}><i className="fas fa-truck-ramp-box"></i> Receive delivery</button>
             )}
           </div>

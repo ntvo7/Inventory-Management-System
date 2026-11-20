@@ -35,7 +35,7 @@ TABLES = [
         username VARCHAR(64) NOT NULL UNIQUE,
         full_name VARCHAR(255) NOT NULL,
         password_hash VARCHAR(255) NOT NULL,
-        role ENUM('admin', 'employee') NOT NULL DEFAULT 'employee',
+        role ENUM('admin', 'employee', 'viewer') NOT NULL DEFAULT 'employee',
         active TINYINT(1) NOT NULL DEFAULT 1,
         created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         last_login DATETIME NULL
@@ -131,6 +131,15 @@ def ensure_schema(default_admin_password='brucestore'):
         for column, definition in STOCK_COLUMNS.items():
             if column not in existing:
                 cur.execute(f"ALTER TABLE stock ADD COLUMN {column} {definition}")
+
+        # older databases: allow the read-only 'viewer' role
+        cur.execute(
+            "SELECT column_type FROM information_schema.columns "
+            "WHERE table_schema = DATABASE() AND table_name = 'app_user' AND column_name = 'role'"
+        )
+        role_type = cur.fetchone()
+        if role_type and 'viewer' not in str(role_type[0]):
+            cur.execute("ALTER TABLE app_user MODIFY role ENUM('admin', 'employee', 'viewer') NOT NULL DEFAULT 'employee'")
 
         # first run: create the owner account (same login as before)
         cur.execute("SELECT COUNT(*) FROM app_user")

@@ -14,7 +14,7 @@ const LINKS = [
 
 // The left panel ("Dashboard"): who is logged in + page links
 export default function Sidebar() {
-  const { user, isAdmin, logout } = useAuth();
+  const { user, isAdmin, canEdit, logout } = useAuth();
   const navigate = useNavigate();
   const [changingPassword, setChangingPassword] = useState(false);
 
@@ -38,7 +38,9 @@ export default function Sidebar() {
         <div className="avatar">{initials(user.full_name)}</div>
         <div className="who">
           <div className="name">{user.full_name}</div>
-          <span className={`role-badge ${user.role}`}>{isAdmin ? 'Owner · Admin' : 'Employee'}</span>
+          <span className={`role-badge ${user.role === 'admin' ? '' : 'employee'}`}>
+            {isAdmin ? 'Owner · Admin' : canEdit ? 'Employee' : 'Viewer · Read-only'}
+          </span>
         </div>
       </div>
 
@@ -51,9 +53,11 @@ export default function Sidebar() {
       </nav>
 
       <div className="sidebar-foot nav">
-        <button type="button" onClick={() => setChangingPassword(true)}>
-          <i className="fas fa-key"></i> Change password
-        </button>
+        {canEdit && (
+          <button type="button" onClick={() => setChangingPassword(true)}>
+            <i className="fas fa-key"></i> Change password
+          </button>
+        )}
         <button type="button" onClick={handleLogout}>
           <i className="fas fa-right-from-bracket"></i> Log off
         </button>

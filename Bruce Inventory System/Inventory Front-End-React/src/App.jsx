@@ -10,7 +10,7 @@ import UsersPage from './pages/UsersPage.jsx';
 
 // Pages behind the login: sidebar on the left, the current page on the right
 function ProtectedLayout() {
-  const { user, checking } = useAuth();
+  const { user, checking, canEdit } = useAuth();
   const location = useLocation();
 
   if (checking) return <p className="status-msg">Loading…</p>;
@@ -20,6 +20,12 @@ function ProtectedLayout() {
     <div className="layout">
       <Sidebar />
       <main className="content">
+        {!canEdit && (
+          <div className="callout" role="status">
+            <i className="fas fa-eye"></i>
+            <div><b>Read-only demo.</b> You can look around every page, but changes are turned off for this account.</div>
+          </div>
+        )}
         <Outlet />
         <footer className="app-foot">© Starburn Technology · Stop Mini Mart</footer>
       </main>

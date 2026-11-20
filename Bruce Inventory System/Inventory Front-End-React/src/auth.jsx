@@ -41,8 +41,9 @@ export function AuthProvider({ children }) {
   }, []);
 
   const isAdmin = user?.role === 'admin';
+  const canEdit = !!user && user.role !== 'viewer'; // viewers (demo account) are read-only
   return (
-    <AuthContext.Provider value={{ user, isAdmin, checking, reason, login, logout }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ user, isAdmin, canEdit, checking, reason, login, logout }}>{children}</AuthContext.Provider>
   );
 }
 

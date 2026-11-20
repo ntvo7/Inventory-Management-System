@@ -11,7 +11,7 @@ import { date, money, num } from '../format.js';
 import { useAsync } from '../useAsync.js';
 
 export default function SuppliersPage() {
-  const { isAdmin } = useAuth();
+  const { isAdmin, canEdit } = useAuth();
   const [params, setParams] = useSearchParams();
   const tab = params.get('tab') || 'suppliers';
   const setTab = (t) => setParams(t === 'suppliers' ? {} : { tab: t }, { replace: true });
@@ -52,8 +52,8 @@ export default function SuppliersPage() {
   return (
     <>
       <Topbar title="Suppliers" subtitle="Who you buy from, what is on order, and what to order next">
-        <button className="btn btn-secondary" onClick={() => setModal({ kind: 'supplier' })}><i className="fas fa-plus"></i> Add supplier</button>
-        <button className="btn btn-primary" onClick={() => setModal({ kind: 'newPo' })} disabled={!data}><i className="fas fa-file-invoice"></i> New order</button>
+        {canEdit && <button className="btn btn-secondary" onClick={() => setModal({ kind: 'supplier' })}><i className="fas fa-plus"></i> Add supplier</button>}
+        {canEdit && <button className="btn btn-primary" onClick={() => setModal({ kind: 'newPo' })} disabled={!data}><i className="fas fa-file-invoice"></i> New order</button>}
       </Topbar>
 
       <Tabs label="Suppliers sections" value={tab} onChange={setTab} tabs={[
@@ -87,12 +87,12 @@ export default function SuppliersPage() {
                   <div><b>{s.open_orders}</b><span>open orders</span></div>
                   <div><b>{money(s.total_spend).replace('.00', '')}</b><span>bought</span></div>
                 </div>
-                <div className="row-actions" style={{ width: '100%', justifyContent: 'space-between' }}>
+                {canEdit && <div className="row-actions" style={{ width: '100%', justifyContent: 'space-between' }}>
                   <button className="btn btn-secondary btn-sm" onClick={() => setModal({ kind: 'supplier', supplier: s })}><i className="fas fa-pen"></i> Edit</button>
                   {s.active ? (
                     <button className="btn btn-primary btn-sm" onClick={() => setModal({ kind: 'newPo', initial: { supplier_id: s.supplier_id } })}><i className="fas fa-file-invoice"></i> New order</button>
                   ) : null}
-                </div>
+                </div>}
               </article>
             ))}
           </div>
@@ -149,7 +149,7 @@ export default function SuppliersPage() {
                       <h3>{g.name}</h3>
                       <div className="muted" style={{ fontSize: 13 }}>{g.items.length} products · about {money(total)}</div>
                     </div>
-                    {g.supplier_id ? (
+                    {!canEdit ? null : g.supplier_id ? (
                       <button className="btn btn-primary btn-sm" onClick={() => setModal({
                         kind: 'newPo',
                         initial: { supplier_id: g.supplier_id, items: g.items.map((p) => ({ s_id: String(p.s_id), qty: p.suggested_qty, unit_cost: p.unit_cost })) },

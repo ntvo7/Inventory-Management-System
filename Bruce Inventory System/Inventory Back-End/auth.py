@@ -2,7 +2,8 @@
 
 - The React site logs in with /api/login and gets a session cookie.
 - The old Express site sends HTTP Basic Auth on every call.
-- Roles: 'admin' (the owner) can manage users and delete things; 'employee' runs the store.
+- Roles: 'admin' (the owner) can manage users and delete things; 'employee' runs the store;
+  'viewer' can look at everything but change nothing (used for the public demo account).
 """
 from functools import wraps
 
@@ -15,6 +16,8 @@ bp = Blueprint('auth', __name__)
 
 PUBLIC_FIELDS = 'user_id, username, full_name, role, active, created_at, last_login'
 MIN_PASSWORD_LENGTH = 6
+ROLES = ('admin', 'employee', 'viewer')
+READ_ONLY_METHODS = ('GET', 'HEAD', 'OPTIONS')
 
 
 def generate_password_hash(password):
@@ -58,6 +61,9 @@ def login_required(f):
         if current_user() is None:
             # no WWW-Authenticate header, so browsers don't pop up a login box
             return jsonify({'error': 'login required'}), 401
+        # viewers (the demo account) can read everything but never change anything
+        if current_user()['role'] == 'viewer' and request.method not in READ_ONLY_METHODS:
+            return jsonify({'error': 'This is a read-only demo account. It can look around but not make changes.'}), 403
         return f(*args, **kwargs)
     return wrapper
 
@@ -137,8 +143,8 @@ def create_user():
     role = data.get('role') or 'employee'
     if not username or not full_name:
         return jsonify({'error': 'Username and full name are required'}), 400
-    if role not in ('admin', 'employee'):
-        return jsonify({'error': 'Role must be admin or employee'}), 400
+    if role not in ROLES:
+        return jsonify({'error': 'Role must be admin, employee or viewer'}), 400
     if len(password) < MIN_PASSWORD_LENGTH:
         return jsonify({'error': f'Password must be at least {MIN_PASSWORD_LENGTH} characters'}), 400
     if query("SELECT 1 FROM app_user WHERE username = %s", (username,), one=True):
@@ -169,8 +175,8 @@ def update_user(user_id):
     full_name = (data.get('full_name') or user['full_name']).strip()
     role = data.get('role', user['role'])
     active = 1 if data.get('active', user['active']) else 0
-    if role not in ('admin', 'employee'):
-        return jsonify({'error': 'Role must be admin or employee'}), 400
+    if role not in ROLES:
+        return jsonify({'error': 'Role must be admin, employee or viewer'}), 400
 
     # the store must always keep at least one active owner account
     losing_admin = user['role'] == 'admin' and user['active'] and (role != 'admin' or not active)

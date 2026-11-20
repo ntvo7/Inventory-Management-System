@@ -10,7 +10,7 @@ import { useAsync } from '../useAsync.js';
 
 // Day-to-day inventory work: products, receiving, sales, adjustments, FIFO / LIFO value
 export default function OperationPage() {
-  const { isAdmin } = useAuth();
+  const { isAdmin, canEdit } = useAuth();
   const [toast, showToast] = useToast();
   const [method, setMethod] = useState('fifo');
   const [search, setSearch] = useState('');
@@ -61,7 +61,7 @@ export default function OperationPage() {
       <Topbar title="Operation" subtitle="Products, receiving, sales and stock counts">
         <Segmented label="Valuation method" value={method} onChange={setMethod}
           options={[{ id: 'fifo', label: 'FIFO' }, { id: 'lifo', label: 'LIFO' }]} />
-        <button className="btn btn-primary" onClick={() => setModal({ kind: 'product' })}><i className="fas fa-plus"></i> Add product</button>
+        {canEdit && <button className="btn btn-primary" onClick={() => setModal({ kind: 'product' })}><i className="fas fa-plus"></i> Add product</button>}
       </Topbar>
 
       {loading && <Loading what="products" />}
@@ -137,11 +137,11 @@ export default function OperationPage() {
                     <th className="right">Min</th>
                     <th>Status</th>
                     <th className="right">Value ({method.toUpperCase()})</th>
-                    <th className="right sticky-col">Actions</th>
+                    {canEdit && <th className="right sticky-col">Actions</th>}
                   </tr>
                 </thead>
                 <tbody>
-                  {visible.length === 0 && <tr><td colSpan={9} className="empty">No products match these filters.</td></tr>}
+                  {visible.length === 0 && <tr><td colSpan={canEdit ? 9 : 8} className="empty">No products match these filters.</td></tr>}
                   {visible.map((p) => (
                     <tr key={p.s_id}>
                       <td className="wrap" style={{ minWidth: 170 }}>
@@ -155,14 +155,14 @@ export default function OperationPage() {
                       <td className="right num muted">{p.min_stock}</td>
                       <td><StatusPill status={p.status} /></td>
                       <td className="right num">{money(value(p))}</td>
-                      <td className="right sticky-col">
+                      {canEdit && <td className="right sticky-col">
                         <div className="row-actions" style={{ gap: 4 }}>
                           <button className="icon-btn" title="Receive stock" aria-label={`Receive ${p.s_name}`} onClick={() => setModal({ kind: 'receive', product: p })}><i className="fas fa-truck-ramp-box"></i></button>
                           <button className="icon-btn" title="Record a sale" aria-label={`Sell ${p.s_name}`} onClick={() => setModal({ kind: 'sell', product: p })} disabled={p.instock <= 0}><i className="fas fa-cash-register"></i></button>
                           <button className="icon-btn" title="Adjust count" aria-label={`Adjust ${p.s_name}`} onClick={() => setModal({ kind: 'adjust', product: p })}><i className="fas fa-scale-balanced"></i></button>
                           <button className="icon-btn" title="Edit details" aria-label={`Edit ${p.s_name}`} onClick={() => setModal({ kind: 'product', product: p })}><i className="fas fa-pen"></i></button>
                         </div>
-                      </td>
+                      </td>}
                     </tr>
                   ))}
                 </tbody>

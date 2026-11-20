@@ -9,7 +9,9 @@ import { useAsync } from '../useAsync.js';
 const ROLE_INFO = {
   admin: 'Owner: everything, plus managing users and deleting products or suppliers',
   employee: 'Runs the store: products, receiving, sales, counts, suppliers, orders and reports',
+  viewer: 'Read-only: can open every page and report but cannot change anything (good for a public demo account)',
 };
+const ROLE_LABEL = { admin: 'Owner (admin)', employee: 'Employee', viewer: 'Viewer (read-only)' };
 
 function UserModal({ user, me, onClose, onSaved }) {
   const adding = !user;
@@ -46,6 +48,7 @@ function UserModal({ user, me, onClose, onSaved }) {
           <label htmlFor="u-role">Role</label>
           <select id="u-role" className="select" value={f.role} onChange={set('role')}>
             <option value="employee">Employee</option>
+            <option value="viewer">Viewer (read-only)</option>
             <option value="admin">Owner (admin)</option>
           </select>
         </div>
@@ -96,6 +99,7 @@ export default function UsersPage() {
             <Stat icon="fa-users" label="Active users" value={users.filter((u) => u.active).length} />
             <Stat icon="fa-user-shield" label="Owners (admin)" value={users.filter((u) => u.active && u.role === 'admin').length} />
             <Stat icon="fa-user" label="Employees" value={users.filter((u) => u.active && u.role === 'employee').length} />
+            <Stat icon="fa-eye" label="Viewers (read-only)" value={users.filter((u) => u.active && u.role === 'viewer').length} />
             <Stat icon="fa-user-slash" label="Deactivated" value={users.filter((u) => !u.active).length} />
           </div>
           <section className="card">
@@ -110,7 +114,7 @@ export default function UsersPage() {
                         <b>{u.full_name}</b>{u.user_id === me.user_id && <span className="muted"> (you)</span>}
                       </td>
                       <td className="muted">{u.username}</td>
-                      <td><span className={`pill ${u.role === 'admin' ? 'ok' : 'neutral'}`}>{u.role === 'admin' ? 'Owner (admin)' : 'Employee'}</span></td>
+                      <td><span className={`pill ${u.role === 'admin' ? 'ok' : u.role === 'viewer' ? 'info' : 'neutral'}`}>{ROLE_LABEL[u.role]}</span></td>
                       <td>{u.active ? <span className="pill ok">Active</span> : <span className="pill out">Deactivated</span>}</td>
                       <td className="muted">{u.last_login ? dateTime(u.last_login) : 'Never'}</td>
                       <td className="muted">{dateTime(u.created_at)}</td>
